@@ -1,21 +1,39 @@
 package com.example.todo_list;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.example.todo_list.Adapter.ToDoAdapter;
 import com.example.todo_list.Model.ToDoModel;
+import com.example.todo_list.Utils.DatabaseHandler;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DialogCloseListener {
 
-    private RecyclerView taskRecyclerView;
+    private DatabaseHandler db;
+
+    private RecyclerView tasksRecyclerView;
     private ToDoAdapter tasksAdapter;
+    private FloatingActionButton fab;
 
     private List<ToDoModel> taskList;
 
@@ -23,27 +41,40 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
-        taskList = new ArrayList<>();
+        db = new DatabaseHandler(this);
+        db.openDatabase();
 
-        taskRecyclerView = findViewById(R.id.tasksRecyclerView);
-        taskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        tasksAdapter = new ToDoAdapter(this);
-        taskRecyclerView.setAdapter(tasksAdapter);
+        tasksRecyclerView = findViewById(R.id.tasksRecyclerView);
+        tasksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        tasksAdapter = new ToDoAdapter(db,MainActivity.this);
+        tasksRecyclerView.setAdapter(tasksAdapter);
 
-        ToDoModel task = new ToDoModel();
-        task.setTask("this is a test task");
-        task.setStatus(0);
-        task.setTag("test");
-        task.setId(1);
+        ItemTouchHelper itemTouchHelper = new
+                ItemTouchHelper(new RecyclerItemTouchHelper(tasksAdapter));
+        itemTouchHelper.attachToRecyclerView(tasksRecyclerView);
 
-        taskList.add(task);
-        taskList.add(task);
-        taskList.add(task);
-        taskList.add(task);
-        taskList.add(task);
+        fab = findViewById(R.id.fab);
+
+        taskList = db.getAllTasks();
+        Collections.reverse(taskList);
 
         tasksAdapter.setTasks(taskList);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddNewTask.newInstance().show(getSupportFragmentManager(), AddNewTask.TAG);
+            }
+        });
+    }
+
+    @Override
+    public void handleDialogClose(DialogInterface dialog){
+        taskList = db.getAllTasks();
+        Collections.reverse(taskList);
+        tasksAdapter.setTasks(taskList);
+        tasksAdapter.notifyDataSetChanged();
     }
 }
