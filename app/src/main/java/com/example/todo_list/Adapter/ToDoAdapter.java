@@ -51,7 +51,10 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder> {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    db.deleteTask(item.getId());
                     db.updateStatus(item.getId(), 1);
+                    deleteItem(position);
+                    notifyItemRemoved(position);
                 } else {
                     db.updateStatus(item.getId(), 0);
                 }

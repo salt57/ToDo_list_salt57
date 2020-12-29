@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@color/design_default_color_on_primary"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"

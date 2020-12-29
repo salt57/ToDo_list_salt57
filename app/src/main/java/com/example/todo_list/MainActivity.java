@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 
@@ -65,7 +66,14 @@ public class MainActivity extends AppCompatActivity implements DialogCloseListen
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fab.setEnabled(false);
                 AddNewTask.newInstance().show(getSupportFragmentManager(), AddNewTask.TAG);
+                new Handler().postDelayed(new Runnable(){
+                    @Override
+                    public void run() {
+                        fab.setEnabled(true);
+                    }
+                }, 2000);
             }
         });
     }
